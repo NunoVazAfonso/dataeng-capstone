@@ -9,5 +9,6 @@ import helpers
 class EtlPlugin(AirflowPlugin):
     name = "etl_plugin"
     operators = [
-        operators.ZenodoDownloaderOperator
+        operators.ZenodoDownloaderOperator,
+        operators.CovidDataDownloader
     ]

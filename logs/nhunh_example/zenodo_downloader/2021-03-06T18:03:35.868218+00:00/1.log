@@ -1,0 +1,27 @@
+[2021-03-06 18:03:36,610] {taskinstance.py:851} INFO - Dependencies all met for <TaskInstance: nhunh_example.zenodo_downloader 2021-03-06T18:03:35.868218+00:00 [queued]>
+[2021-03-06 18:03:36,626] {taskinstance.py:851} INFO - Dependencies all met for <TaskInstance: nhunh_example.zenodo_downloader 2021-03-06T18:03:35.868218+00:00 [queued]>
+[2021-03-06 18:03:36,626] {taskinstance.py:1042} INFO - 
+--------------------------------------------------------------------------------
+[2021-03-06 18:03:36,626] {taskinstance.py:1043} INFO - Starting attempt 1 of 2
+[2021-03-06 18:03:36,626] {taskinstance.py:1044} INFO - 
+--------------------------------------------------------------------------------
+[2021-03-06 18:03:36,636] {taskinstance.py:1063} INFO - Executing <Task(ZenodoDownloaderOperator): zenodo_downloader> on 2021-03-06T18:03:35.868218+00:00
+[2021-03-06 18:03:36,639] {standard_task_runner.py:52} INFO - Started process 56 to run task
+[2021-03-06 18:03:36,642] {standard_task_runner.py:76} INFO - Running: ['airflow', 'tasks', 'run', 'nhunh_example', 'zenodo_downloader', '2021-03-06T18:03:35.868218+00:00', '--job-id', '5', '--pool', 'default_pool', '--raw', '--subdir', 'DAGS_FOLDER/airflow_example.py', '--cfg-path', '/tmp/tmp6ansi917', '--error-file', '/tmp/tmpe319j14p']
+[2021-03-06 18:03:36,643] {standard_task_runner.py:77} INFO - Job 5: Subtask zenodo_downloader
+[2021-03-06 18:03:36,683] {logging_mixin.py:104} INFO - Running <TaskInstance: nhunh_example.zenodo_downloader 2021-03-06T18:03:35.868218+00:00 [running]> on host 2ca80f9c51df
+[2021-03-06 18:03:36,723] {taskinstance.py:1257} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=nunovazafonso
+AIRFLOW_CTX_DAG_ID=nhunh_example
+AIRFLOW_CTX_TASK_ID=zenodo_downloader
+AIRFLOW_CTX_EXECUTION_DATE=2021-03-06T18:03:35.868218+00:00
+AIRFLOW_CTX_DAG_RUN_ID=manual__2021-03-06T18:03:35.868218+00:00
+[2021-03-06 18:03:36,724] {bash.py:135} INFO - Tmp dir root location: 
+ /tmp
+[2021-03-06 18:03:36,725] {bash.py:158} INFO - Running command: pwd
+[2021-03-06 18:03:36,733] {bash.py:169} INFO - Output:
+[2021-03-06 18:03:36,734] {bash.py:173} INFO - /tmp/airflowtmpjul42j7n
+[2021-03-06 18:03:36,735] {bash.py:177} INFO - Command exited with return code 0
+[2021-03-06 18:03:36,767] {taskinstance.py:1166} INFO - Marking task as SUCCESS. dag_id=nhunh_example, task_id=zenodo_downloader, execution_date=20210306T180335, start_date=20210306T180336, end_date=20210306T180336
+[2021-03-06 18:03:36,800] {taskinstance.py:1220} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2021-03-06 18:03:36,815] {local_task_job.py:146} INFO - Task exited with return code 0
