@@ -23,3 +23,8 @@ https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-hadoop-script.html
 
 Mount s3: 
 https://cloudkul.com/blog/mounting-s3-bucket-linux-ec2-instance/
+
+Airports db:
+https://ourairports.com/data/
+https://ourairports.com/data/airports.csv
+
