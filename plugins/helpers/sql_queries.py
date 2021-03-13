@@ -31,6 +31,15 @@ class SqlQueries :
 		location varchar 
 	) """
 
+	airports_staging_create = """ CREATE TABLE IF NOT EXISTS airports_staging 
+		id integer ,
+		code varchar(25),
+		type varchar(25),
+		name varchar(150),
+		iso_country varchar(10),
+		municipality varchar(150) 
+	"""
+
 	covid_staging_create = """ CREATE TABLE IF NOT EXISTS covid_staging (  	
 		Date_reported varchar, 	
 		Country_code varchar,	
@@ -56,4 +65,11 @@ class SqlQueries :
 		country varchar,
 		iso_code varchar
 	) """
+
+	countries_staging_create = """ CREATE TABLE IF NOT EXISTS countries_staging( 
+		name varchar(150),
+		alpha_2 varchar(2),
+		alpha_3 varchar(3)
+	)
+	"""
 

@@ -10,5 +10,5 @@ class EtlPlugin(AirflowPlugin):
     name = "etl_plugin"
     operators = [
         operators.ZenodoDownloaderOperator,
-        operators.CovidDataDownloader
+        operators.RawDataHandler
     ]

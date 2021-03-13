@@ -5,6 +5,7 @@ Instructions
 	zenodo_get , pip install zenodo-get  
 	pyspark
 	boto3
+	pycountry
   
 2. Create variables in airflow
 	project_root: the root folder of the project

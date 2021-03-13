@@ -1,6 +1,6 @@
-from operators.data_downloader import ZenodoDownloaderOperator , CovidDataDownloader
+from operators.data_downloader import ZenodoDownloaderOperator, RawDataHandler
 
 __all__ = [ 
 	'ZenodoDownloaderOperator' , 
-	'CovidDataDownloader'
+	'RawDataHandler'
 ]
