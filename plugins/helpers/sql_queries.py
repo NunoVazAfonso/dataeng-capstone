@@ -5,30 +5,21 @@ class SqlQueries :
 	# Staging tables 
 	
 	flights_staging_create = """ CREATE TABLE IF NOT EXISTS flights_staging (
-		callsign varchar,	
-		\"number\" varchar, 	
-		icao24 varchar,	
-		registration varchar, 	
-		typecode varchar,	
-		origin varchar,	
-		destination varchar,	
-		firstseen varchar,	
-		lastseen varchar,	
-		day varchar,	
-		latitude_1 float, 	
-		longitude_1 float,	
-		altitude_1 float,
-		latitude_2 float,	
-		longitude_2 float,	
-		altitude_2 float
+		callsign varchar,
+		trasponder_id varchar,	
+		aircraft_id varchar, 	
+		aircraft_type varchar,	
+		depart_airport_id varchar,	
+		arrival_airport_id varchar,	
+		depart_at varchar,	
+		arrival_at varchar
 	)"""
 
 	tweets_staging_create = """ CREATE TABLE IF NOT EXISTS tweets_staging ( 
-		tweet_id bigint, 	
-		user_id bigint,	
 		\"date\" timestamp, 	
 		keywords varchar,	
-		location varchar 
+		country varchar,
+		tweet_id bigint
 	) """
 
 	airports_staging_create = """ CREATE TABLE IF NOT EXISTS airports_staging 

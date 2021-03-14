@@ -12,3 +12,6 @@ class EtlPlugin(AirflowPlugin):
         operators.ZenodoDownloaderOperator,
         operators.RawDataHandler
     ]
+    helpers = [
+        helpers.SqlQueries
+    ]

@@ -3,11 +3,11 @@ import os
 import configparser
 
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from airflow.models import Variable
+from airflow.operators.postgres_operator import PostgresOperator
 from operators.data_downloader import ZenodoDownloaderOperator, RawDataHandler
 
+from helpers import SqlQueries
 
 
 # set configs
@@ -47,3 +47,9 @@ covid_data_task = RawDataHandler(
         aws_credentials_id="s3_credentials"
     )
 
+create_tables_task = PostgresOperator(
+        task_id="create_tables",
+        dag=dag,
+        postgres_conn_id="redshift",
+        sql=SqlQueries.flights_staging_create
+    )
