@@ -10,7 +10,8 @@ class EtlPlugin(AirflowPlugin):
     name = "etl_plugin"
     operators = [
         operators.ZenodoDownloaderOperator,
-        operators.RawDataHandler
+        operators.RawDataHandler,
+        operators.S3ToRedshiftOperator
     ]
     helpers = [
         helpers.SqlQueries

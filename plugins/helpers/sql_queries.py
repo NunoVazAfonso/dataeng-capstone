@@ -16,19 +16,20 @@ class SqlQueries :
 	)"""
 
 	tweets_staging_create = """ CREATE TABLE IF NOT EXISTS tweets_staging ( 
-		\"date\" timestamp, 	
+		\"date\" varchar, 	
 		keywords varchar,	
 		country varchar,
 		tweet_id bigint
 	) """
 
-	airports_staging_create = """ CREATE TABLE IF NOT EXISTS airports_staging 
+	airports_staging_create = """ CREATE TABLE IF NOT EXISTS airports_staging (
 		id integer ,
 		code varchar(25),
 		type varchar(25),
 		name varchar(150),
 		iso_country varchar(10),
 		municipality varchar(150) 
+	)
 	"""
 
 	covid_staging_create = """ CREATE TABLE IF NOT EXISTS covid_staging (  	
@@ -64,3 +65,8 @@ class SqlQueries :
 	)
 	"""
 
+	create_sttmts = [countries_staging_create, vaccination_staging_create, covid_staging_create, airports_staging_create, tweets_staging_create, flights_staging_create]
+
+
+	# COPY INTO sttmts
+	

@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from operators.data_downloader import ZenodoDownloaderOperator, RawDataHandler
+from operators.redshift_operator import S3ToRedshiftOperator
 
 from helpers import SqlQueries
 
@@ -34,22 +35,40 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
+#create_tables_task = PostgresOperator(
+#        task_id="create_tables",
+#        dag=dag,
+#        postgres_conn_id="redshift",
+#        sql=SqlQueries.create_sttmts 
+#    )
+
 #zenodo_task = ZenodoDownloaderOperator(
 #        task_id = "zenodo_downloader",
 #        dag = dag
 #)
 
-covid_data_task = RawDataHandler(
-        task_id = "covid_data_downloader",
-        dag = dag,
-        destination_folder= output_path,
-        s3_bucket='udacity-awss',
-        aws_credentials_id="s3_credentials"
+#covid_data_task = RawDataHandler(
+#        task_id = "covid_data_downloader",
+#        dag = dag,
+#        destination_folder= output_path,
+#        s3_bucket='udacity-awss',
+#        aws_credentials_id="s3_credentials"
+#    )
+
+populate_staging_task = S3ToRedshiftOperator(
+        task_id="populate_staging_tables",
+        dag=dag,
+        redshift_conn_id="redshift",
+        aws_credentials_id="aws_credentials",
+        tables= [ 
+            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
+            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
+            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
+            {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
+            {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
+            {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
+        ],
+        s3_bucket="udacity-awss"
     )
 
-create_tables_task = PostgresOperator(
-        task_id="create_tables",
-        dag=dag,
-        postgres_conn_id="redshift",
-        sql=SqlQueries.flights_staging_create
-    )
+
