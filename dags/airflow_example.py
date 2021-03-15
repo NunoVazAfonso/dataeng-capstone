@@ -55,20 +55,20 @@ dag = DAG(
 #        aws_credentials_id="s3_credentials"
 #    )
 
-populate_staging_task = S3ToRedshiftOperator(
-        task_id="populate_staging_tables",
-        dag=dag,
-        redshift_conn_id="redshift",
-        aws_credentials_id="aws_credentials",
-        tables= [ 
-            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
-            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
-            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
-            {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
-            {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
-            {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
-        ],
-        s3_bucket="udacity-awss"
-    )
+#populate_staging_task = S3ToRedshiftOperator(
+#        task_id="populate_staging_tables",
+#        dag=dag,
+#        redshift_conn_id="redshift",
+#        aws_credentials_id="aws_credentials",
+#        tables= [ 
+#            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
+#            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
+#            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
+#            {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
+#            {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
+#            {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
+#        ],
+#        s3_bucket="udacity-awss"
+#    )
 
 
