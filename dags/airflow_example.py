@@ -35,12 +35,12 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
-#create_tables_task = PostgresOperator(
-#        task_id="create_tables",
-#        dag=dag,
-#        postgres_conn_id="redshift",
-#        sql=SqlQueries.create_sttmts 
-#    )
+create_tables_task = PostgresOperator(
+        task_id="create_tables",
+        dag=dag,
+        postgres_conn_id="redshift",
+        sql=SqlQueries.create_sttmts 
+    )
 
 #zenodo_task = ZenodoDownloaderOperator(
 #        task_id = "zenodo_downloader",
@@ -72,3 +72,19 @@ dag = DAG(
 #    )
 
 
+populate_dimensions_task = PostgresOperator(
+        task_id="populate_dimensions",
+        dag=dag,
+        postgres_conn_id="redshift",
+        sql=SqlQueries.populate_dims_sttmts 
+    )
+
+populate_facts_task = PostgresOperator(
+        task_id="populate_facts",
+        dag=dag,
+        postgres_conn_id="redshift",
+        sql=SqlQueries.populate_facts_sttmts 
+    )
+
+create_tables_task >> populate_dimensions_task
+populate_dimensions_task >> populate_facts_task

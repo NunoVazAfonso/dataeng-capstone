@@ -63,12 +63,9 @@ class RawDataHandler(BaseOperator):
 		output_file="",
 		s3_region="us-west-2" ):
 
-		print("Upload to s3 est")
-
 		s3_hook = S3Hook(aws_conn_id=aws_credentials)
 
 		s3_hook.load_file( filename=input_file_path , bucket_name=s3_bucket , key=output_file)
-
 
 
 	def execute(self, context):

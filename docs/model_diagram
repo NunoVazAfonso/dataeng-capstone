@@ -1,0 +1,109 @@
+// Creating tables
+Table dim_date as dd {
+  id int [pk, increment]
+  full_date date
+  year_number integer
+  year_week_number integer
+  year_day_number integer
+  qtr_number integer
+  month_number integer
+  month_name integer
+  week_day_number integer
+  day_name varchar
+  day_is_weekday integer
+  day_is_last_of_month  integer
+}
+
+Table dim_country as c {
+  id int [pk, increment] 
+  name varchar
+  iso2 varchar
+  iso3 varchar
+}
+
+
+Table dim_social_user_TODO as su { 
+  id int [pk, increment]
+  ref_id int 
+  fk_country varchar
+  platform_name varchar //eg twitter
+}
+
+//Ref: su.fk_country > c.id 
+
+/// --- SOCIAL FACTS
+
+Table f_social_hit_TODO as sh{
+  fk_date int
+  fk_user int
+  fk_country varchar 
+  sentiment varchar
+  count int
+  platform_name varchar
+}
+
+Ref: sh.fk_user > su.id 
+Ref: sh.fk_country > c.id  
+Ref: dd.id > sh.fk_date 
+ 
+//// --- FLIGHT DIMS
+
+Table dim_airport as a {
+  id int [pk, increment]
+  name varchar
+  code varchar
+  city varchar
+  country_iso2 varchar
+}
+
+Ref: a.country_iso2 > c.iso2 
+
+Table dim_airline as air{
+  id int 
+  code varchar
+  name_TODO varchar
+}
+
+/// --- FLIGHT FACTS 
+
+Table f_airlineflights as ff {
+  fk_date int
+  airline_code varchar
+  arrival_code varchar
+  departure_code varchar
+  nr_planes int 
+}
+
+Ref: ff.arrival_code > a.code
+Ref: ff.departure_code > a.code
+Ref: ff.fk_date > dd.id
+Ref: ff.airline_code > air.code
+
+Table f_airportarrivals as fca {
+  fk_date int
+  country_iso2 varchar
+  arrival_code varchar
+  nr_planes int 
+}
+
+Ref: fca.fk_date > dd.id
+Ref: fca.arrival_code > a.code
+Ref: fca.country_iso2 > c.iso2
+
+// --- COVID FACTS
+
+Table f_countrycovid as cov{
+  fk_country int
+  fk_date int
+  nr_cases_cum int 
+  nr_cases_new int
+  nr_deaths int
+  nr_deaths_cum int
+  nr_people_vaccinated int
+  perc_people_vaccinated float8
+  nr_fully_vaccinated int
+  perc_fully_vaccinated float8
+  
+}
+Ref: cov.fk_date > dd.id 
+Ref: cov.fk_country > c.id
