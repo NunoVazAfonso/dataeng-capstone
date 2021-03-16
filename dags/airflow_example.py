@@ -21,7 +21,6 @@ raw_flight_data_path = input_path + config.get('PATH', 'FLIGHTS_RAW_FOLDER')
 raw_tweets_data_path = input_path + config.get('PATH', 'TWEETS_RAW_FOLDER')
 
 
-
 default_args = {
     'owner': 'nunovazafonso',
     'start_date': dt.datetime.now(),
@@ -35,12 +34,11 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
-create_tables_task = PostgresOperator(
-        task_id="create_tables",
-        dag=dag,
-        postgres_conn_id="redshift",
-        sql=SqlQueries.create_sttmts 
-    )
+get_metadata_task = PythonOperator(
+    task_id="get_metadata",
+    dag=dag
+)
+
 
 #zenodo_task = ZenodoDownloaderOperator(
 #        task_id = "zenodo_downloader",
@@ -55,21 +53,30 @@ create_tables_task = PostgresOperator(
 #        aws_credentials_id="s3_credentials"
 #    )
 
-#populate_staging_task = S3ToRedshiftOperator(
-#        task_id="populate_staging_tables",
-#        dag=dag,
-#        redshift_conn_id="redshift",
-#        aws_credentials_id="aws_credentials",
-#        tables= [ 
-#            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
-#            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
-#            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
-#            {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
-#            {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
-#            {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
-#        ],
-#        s3_bucket="udacity-awss"
-#    )
+
+""" # THIS IS COMPLETE
+create_tables_task = PostgresOperator(
+        task_id="create_tables",
+        dag=dag,
+        postgres_conn_id="redshift",
+        sql=SqlQueries.create_sttmts 
+    )
+
+populate_staging_task = S3ToRedshiftOperator(
+       task_id="populate_staging_tables",
+       dag=dag,
+       redshift_conn_id="redshift",
+       aws_credentials_id="aws_credentials",
+       tables= [ 
+           {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
+           {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
+           {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
+           {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
+           {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
+           {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
+       ],
+       s3_bucket="udacity-awss"
+   )
 
 
 populate_dimensions_task = PostgresOperator(
@@ -86,5 +93,8 @@ populate_facts_task = PostgresOperator(
         sql=SqlQueries.populate_facts_sttmts 
     )
 
-create_tables_task >> populate_dimensions_task
+create_tables_task >> populate_staging_task 
+populate_staging_task >> populate_dimensions_task
 populate_dimensions_task >> populate_facts_task
+
+"""
