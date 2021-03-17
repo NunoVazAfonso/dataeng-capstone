@@ -3,44 +3,13 @@ import requests
 
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-from airflow.operators.bash_operator import BashOperator
 
-from airflow.hooks.S3_hook import S3Hook
+from helpers import S3Handler
 
 import pycountry
 import boto3
+import time
 
-class ZenodoDownloaderOperator(BashOperator):
-
-	@apply_defaults
-	def __init__(self, *args, **kwargs):
-
-		kwargs['bash_command']="""
-			echo 'Starting URLs download'
-			zenodo_get -o {{ var.value.input_folder }}/data -w flights_list 4485741
-	        zenodo_get -o {{ var.value.input_folder }}/data -w twitter_list 4568860
-	        echo 'Finished URLs download' 
-
-	        cd {{ var.value.input_folder }}/data/
-
-	        # Demo purposes select only a few lines
-	        head -2 flights_list > flights
-	        head -10 twitter_list > tweets
-
-	        echo "Starting file downloads"
-
-	        echo 'Starting flight data download'
-	        wget -i flights -P flights_data/
-
-	        echo 'Starting tweet data download'
-	        wget -i tweets -P tweets_data/
-
-	        echo 'Finished file downloads' 
-        """
-
-		super(ZenodoDownloaderOperator, self).__init__(*args, **kwargs)
-
-        
 class RawDataHandler(BaseOperator):
 
 	@apply_defaults
@@ -55,18 +24,6 @@ class RawDataHandler(BaseOperator):
 		self.destination_folder = destination_folder
 		self.s3_bucket = s3_bucket
 		self.aws_credentials_id = aws_credentials_id
-
-	def upload_to_s3(
-		aws_credentials ,
-		s3_bucket="",
-		input_file_path="",
-		output_file="",
-		s3_region="us-west-2" ):
-
-		s3_hook = S3Hook(aws_conn_id=aws_credentials)
-
-		s3_hook.load_file( filename=input_file_path , bucket_name=s3_bucket , key=output_file)
-
 
 	def execute(self, context):
 		self.log.info('Raw Data Downloader: Started')
@@ -109,11 +66,11 @@ class RawDataHandler(BaseOperator):
 		files_to_upload = ['covid_data.csv', 'vaccination_data.csv' ,'countries_data.csv']
 
 		for file in files_to_upload : 
-			RawDataHandler.upload_to_s3( 
+			S3Handler.upload_file( 
 				self.aws_credentials_id,
 				self.s3_bucket ,
 				destination_path + "/" + file , 
-				"capstone_raw/" + file 
+				"capstone_raw/" + file
 			)
 
 		self.log.info('Upload to s3: Complete')

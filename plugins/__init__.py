@@ -9,10 +9,12 @@ import helpers
 class EtlPlugin(AirflowPlugin):
     name = "etl_plugin"
     operators = [
-        operators.ZenodoDownloaderOperator,
+        operators.MetadataGetter,
         operators.RawDataHandler,
         operators.S3ToRedshiftOperator
     ]
     helpers = [
-        helpers.SqlQueries
+        helpers.SqlQueries, 
+        helpers.S3Handler,
+        helpers.EmrHandler
     ]

@@ -1,8 +1,9 @@
-from operators.data_downloader import ZenodoDownloaderOperator, RawDataHandler
+from operators.data_downloader import RawDataHandler
 from operators.redshift_operator import S3ToRedshiftOperator
+from operators.repo_meta import MetadataGetter
 
 __all__ = [ 
-	'ZenodoDownloaderOperator' , 
+	'MetadataGetter' , 
 	'RawDataHandler',
 	'S3ToRedshiftOperator'
 ]

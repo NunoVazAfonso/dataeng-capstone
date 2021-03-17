@@ -5,10 +5,13 @@ import configparser
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.postgres_operator import PostgresOperator
-from operators.data_downloader import ZenodoDownloaderOperator, RawDataHandler
+from operators.data_downloader import RawDataHandler
 from operators.redshift_operator import S3ToRedshiftOperator
+from operators.repo_meta import MetadataGetter
 
-from helpers import SqlQueries
+from airflow.contrib.operators.emr_create_job_flow_operator import EmrCreateJobFlowOperator
+
+from helpers import SqlQueries, EmrHandler
 
 
 # set configs
@@ -20,6 +23,8 @@ output_path = config.get('PATH', 'OUTPUT_DATA_FOLDER')
 raw_flight_data_path = input_path + config.get('PATH', 'FLIGHTS_RAW_FOLDER')
 raw_tweets_data_path = input_path + config.get('PATH', 'TWEETS_RAW_FOLDER')
 
+flights_repo=config.get('ZENODO', 'FLIGHTS_REPO')
+tweets_repo=config.get('ZENODO', 'TWEETS_REPO')
 
 default_args = {
     'owner': 'nunovazafonso',
@@ -34,34 +39,46 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
-get_metadata_task = PythonOperator(
+""" DONE - getting data to capstone_raw/ in s3
+
+get_metadata_task = MetadataGetter(
     task_id="get_metadata",
-    dag=dag
+    dag=dag,
+    destination_folder=output_path,
+    s3_bucket='udacity-awss',
+    aws_credentials_id="s3_credentials",
+    repos=[ 
+        {'name': 'flights_meta', 'zenodo_id': flights_repo }, 
+        #{'name': 'tweets_meta', 'zenodo_id': tweets_repo }, # TODO: out of scope of this version 
+    ]
 )
 
+covid_data_task = RawDataHandler(
+        task_id = "covid_data_downloader",
+        dag = dag,
+        destination_folder= output_path,
+        s3_bucket='udacity-awss',
+        aws_credentials_id="s3_credentials"
+    )
+"""
 
-#zenodo_task = ZenodoDownloaderOperator(
-#        task_id = "zenodo_downloader",
-#        dag = dag
-#)
-
-#covid_data_task = RawDataHandler(
-#        task_id = "covid_data_downloader",
-#        dag = dag,
-#        destination_folder= output_path,
-#        s3_bucket='udacity-awss',
-#        aws_credentials_id="s3_credentials"
-#    )
-
-
-""" # THIS IS COMPLETE
+""" # DONE - table creation
 create_tables_task = PostgresOperator(
         task_id="create_tables",
         dag=dag,
         postgres_conn_id="redshift",
         sql=SqlQueries.create_sttmts 
     )
+"""
 
+create_emr_task = EmrCreateJobFlowOperator(
+    task_id="create_emr_cluster",
+    job_flow_overrides=EmrHandler.JOB_FLOW_OVERRIDES,
+    aws_conn_id="aws_credentials",
+    dag=dag
+)
+
+""" DONE - Dim and Fact population
 populate_staging_task = S3ToRedshiftOperator(
        task_id="populate_staging_tables",
        dag=dag,
@@ -78,7 +95,6 @@ populate_staging_task = S3ToRedshiftOperator(
        s3_bucket="udacity-awss"
    )
 
-
 populate_dimensions_task = PostgresOperator(
         task_id="populate_dimensions",
         dag=dag,
@@ -92,7 +108,9 @@ populate_facts_task = PostgresOperator(
         postgres_conn_id="redshift",
         sql=SqlQueries.populate_facts_sttmts 
     )
+"""
 
+""" TODO - appropriate dependencies
 create_tables_task >> populate_staging_task 
 populate_staging_task >> populate_dimensions_task
 populate_dimensions_task >> populate_facts_task
