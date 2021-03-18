@@ -39,7 +39,7 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
-""" DONE - getting data to capstone_raw/ in s3
+""" DONE - getting data to capstone_raw/ in s3 """
 
 get_metadata_task = MetadataGetter(
     task_id="get_metadata",
@@ -53,10 +53,11 @@ get_metadata_task = MetadataGetter(
     ]
 )
 
+"""
 covid_data_task = RawDataHandler(
         task_id = "covid_data_downloader",
         dag = dag,
-        destination_folder= output_path,
+        destination_folder=output_path,
         s3_bucket='udacity-awss',
         aws_credentials_id="s3_credentials"
     )
@@ -71,9 +72,9 @@ create_tables_task = PostgresOperator(
     )
 """
 
-""" TODO: mount_s3fs.sh to S3 """
 """ TODO: spark etl.py to S3 """
 
+"""
 create_emr_task = EmrCreateJobFlowOperator(
     task_id="create_emr_cluster",
     job_flow_overrides=EmrHandler.JOB_FLOW_OVERRIDES,
@@ -81,6 +82,8 @@ create_emr_task = EmrCreateJobFlowOperator(
     emr_conn_id="emr_connection",
     dag=dag
 )
+"""
+
 
 """ DONE - Dim and Fact population
 populate_staging_task = S3ToRedshiftOperator(

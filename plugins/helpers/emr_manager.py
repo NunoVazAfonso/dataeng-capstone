@@ -39,7 +39,6 @@ class EmrHandler :
 
 	##################################
 
-	s3_clean = "clean_data/"
 	SPARK_STEPS = [ # Note the params values are supplied to the operator
         {
             'Name': 'Mount s3fs and download files',
@@ -67,3 +66,38 @@ class EmrHandler :
             }
         }
 	]
+
+
+	shell_script = """
+
+		sudo yum update all -y
+		sudo yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel -y
+
+		cd /home/hadoop
+
+		git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+
+		cd s3fs-fuse
+		./autogen.sh
+		./configure --prefix=/usr --with-openssl
+
+		make
+		sudo make install
+
+		echo {aws_id}:{aws_key} >> s3fspw1
+
+		sudo chmod 600 s3fspw1
+
+		mkdir s3mount
+
+		s3fs udacity-awss /home/hadoop/s3fs-fuse/s3mount -o passwd_file=/home/hadoop/s3fs-fuse/s3fspw1	
+
+		cd /home/hadoop/s3fs-fuse/s3mount
+
+		mkdir flights_raw/
+
+		wget -i capstone_raw/flights_meta -P flights_raw/
+
+		#mkdir tweets_raw/
+		#wget -i tweets -P flights_raw/
+	"""
