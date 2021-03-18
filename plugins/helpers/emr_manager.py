@@ -6,7 +6,7 @@ class EmrHandler :
 	key_name = "emr_udacity"
 
 	JOB_FLOW_OVERRIDES = {
-	    "Name": "Capstone Project Pipeline",
+	    "Name": "flights_covid_job",
 	    "ReleaseLabel": "emr-6.2.0",
 	    "Applications": [ 
 	    	{"Name": "Spark"} 

@@ -71,10 +71,14 @@ create_tables_task = PostgresOperator(
     )
 """
 
+""" TODO: mount_s3fs.sh to S3 """
+""" TODO: spark etl.py to S3 """
+
 create_emr_task = EmrCreateJobFlowOperator(
     task_id="create_emr_cluster",
     job_flow_overrides=EmrHandler.JOB_FLOW_OVERRIDES,
     aws_conn_id="aws_credentials",
+    emr_conn_id="emr_connection",
     dag=dag
 )
 

@@ -10,6 +10,8 @@ Instructions
 2. Create variables in airflow
 	project_root: the root folder of the project
 	input_folder: folder where pre-staging data will be stored
+	aws_credentials: insert extras {"region_name": "<YOUR_REGION>"}
+	emr_connection = aws_credentials (no extras required)
 
 3. Mount file system in EC2 instance. 
 	$ s3fs udacity-awss -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/udacity_mount
