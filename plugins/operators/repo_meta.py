@@ -14,6 +14,7 @@ class MetadataGetter(BaseOperator):
 		,destination_folder = "" 
 		,s3_bucket = ""
 		,aws_credentials_id = ""
+		,project_root = ""
 		,repos=[]
 		,*args, **kwargs):
 
@@ -23,6 +24,7 @@ class MetadataGetter(BaseOperator):
 		self.s3_bucket = s3_bucket
 		self.aws_credentials_id = aws_credentials_id
 		self.repos=repos
+		self.project_root=project_root
 
 	def execute(self, context):
 
@@ -77,7 +79,25 @@ class MetadataGetter(BaseOperator):
 			self.log.error('Unable to upload metadata file to S3: repo {}'.format("mount_s3fs.sh"))
 
 
-		# TODO: Spark ETL files to S3 (py with main and configs)
+		# Spark ETL files to S3 (py with main and configs)
 
+		etl_files = [
+			{ 'local_path' : self.project_root + '/scripts/' , 'file': 'spark_etl.py' },
+			{ 'local_path' : self.project_root + '/configs/' , 'file': 'global.cfg' },
+		]
+
+		for f in etl_files :
+			try: 
+				S3Handler.upload_file( 
+					self.aws_credentials_id,
+					self.s3_bucket ,
+					f['local_path'] + f['file'], 			# local file path
+					"etl/" + f['file'] 	# name tof file to be stored in bucket
+				)
+				self.log.info('Uploaded file to S3: {}'.format(f['file']))
+			except : 
+				self.log.error('Unable to upload metadata file to S3: repo {}'.format(f['file']))
+
+		# END 
 		self.log.info('Metadata to S3: Complete')
 

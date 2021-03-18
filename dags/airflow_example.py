@@ -18,6 +18,7 @@ from helpers import SqlQueries, EmrHandler
 config = configparser.ConfigParser()
 config.read( os.path.dirname(os.path.realpath(__file__)) + '/../configs/global.cfg' )
 
+project_root = config.get('PATH', 'PROJECT_ROOT')
 input_path = config.get('PATH', 'INPUT_DATA_FOLDER')
 output_path = config.get('PATH', 'OUTPUT_DATA_FOLDER')
 raw_flight_data_path = input_path + config.get('PATH', 'FLIGHTS_RAW_FOLDER')
@@ -40,19 +41,20 @@ dag = DAG(
 )
 
 """ DONE - getting data to capstone_raw/ in s3 """
-
+"""
 get_metadata_task = MetadataGetter(
     task_id="get_metadata",
     dag=dag,
     destination_folder=output_path,
     s3_bucket='udacity-awss',
     aws_credentials_id="s3_credentials",
+    project_root=project_root,
     repos=[ 
         {'name': 'flights_meta', 'zenodo_id': flights_repo }, 
         #{'name': 'tweets_meta', 'zenodo_id': tweets_repo }, # TODO: out of scope of this version 
     ]
 )
-
+"""
 """
 covid_data_task = RawDataHandler(
         task_id = "covid_data_downloader",
@@ -72,8 +74,6 @@ create_tables_task = PostgresOperator(
     )
 """
 
-""" TODO: spark etl.py to S3 """
-
 """
 create_emr_task = EmrCreateJobFlowOperator(
     task_id="create_emr_cluster",
@@ -84,6 +84,12 @@ create_emr_task = EmrCreateJobFlowOperator(
 )
 """
 
+add_emr_steps_taks = EmrAddStepsOperator(
+    task_id='add_emr_steps',
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id='aws_credentials',
+    steps=EmrHandler.SPARK_STEPS,
+)
 
 """ DONE - Dim and Fact population
 populate_staging_task = S3ToRedshiftOperator(

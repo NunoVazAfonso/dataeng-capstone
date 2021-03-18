@@ -61,7 +61,7 @@ class EmrHandler :
                      'cluster',
                      '--master',
                      'yarn',
-                     'etl.py'
+                     'etl/spark_etl.py'
                 ]
             }
         }
