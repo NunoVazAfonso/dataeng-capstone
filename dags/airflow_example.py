@@ -10,6 +10,10 @@ from operators.redshift_operator import S3ToRedshiftOperator
 from operators.repo_meta import MetadataGetter
 
 from airflow.contrib.operators.emr_create_job_flow_operator import EmrCreateJobFlowOperator
+from airflow.contrib.operators.emr_add_steps_operator import EmrAddStepsOperator
+from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
+from airflow.contrib.operators.emr_terminate_job_flow_operator import EmrTerminateJobFlowOperator
+
 
 from helpers import SqlQueries, EmrHandler
 
@@ -40,8 +44,6 @@ dag = DAG(
     schedule_interval='@monthly'
 )
 
-""" DONE - getting data to capstone_raw/ in s3 """
-"""
 get_metadata_task = MetadataGetter(
     task_id="get_metadata",
     dag=dag,
@@ -54,8 +56,6 @@ get_metadata_task = MetadataGetter(
         #{'name': 'tweets_meta', 'zenodo_id': tweets_repo }, # TODO: out of scope of this version 
     ]
 )
-"""
-"""
 covid_data_task = RawDataHandler(
         task_id = "covid_data_downloader",
         dag = dag,
@@ -63,18 +63,14 @@ covid_data_task = RawDataHandler(
         s3_bucket='udacity-awss',
         aws_credentials_id="s3_credentials"
     )
-"""
 
-""" # DONE - table creation
 create_tables_task = PostgresOperator(
         task_id="create_tables",
         dag=dag,
         postgres_conn_id="redshift",
         sql=SqlQueries.create_sttmts 
     )
-"""
 
-"""
 create_emr_task = EmrCreateJobFlowOperator(
     task_id="create_emr_cluster",
     job_flow_overrides=EmrHandler.JOB_FLOW_OVERRIDES,
@@ -82,16 +78,30 @@ create_emr_task = EmrCreateJobFlowOperator(
     emr_conn_id="emr_connection",
     dag=dag
 )
-"""
 
-add_emr_steps_taks = EmrAddStepsOperator(
+add_emr_steps_task = EmrAddStepsOperator(
     task_id='add_emr_steps',
     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
     aws_conn_id='aws_credentials',
     steps=EmrHandler.SPARK_STEPS,
+    dag=dag
 )
 
-""" DONE - Dim and Fact population
+watch_steps_task = EmrStepSensor(
+    task_id='watch_step',
+    job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
+    step_id="{{ task_instance.xcom_pull(task_ids='add_emr_steps', key='return_value')[0] }}",
+    aws_conn_id='aws_credentials',
+    dag=dag
+)
+
+terminate_cluster_task = EmrTerminateJobFlowOperator(
+    task_id='terminate_cluster',
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id='aws_credentials',
+    dag=dag
+)
+
 populate_staging_task = S3ToRedshiftOperator(
        task_id="populate_staging_tables",
        dag=dag,
@@ -121,11 +131,16 @@ populate_facts_task = PostgresOperator(
         postgres_conn_id="redshift",
         sql=SqlQueries.populate_facts_sttmts 
     )
-"""
 
-""" TODO - appropriate dependencies
-create_tables_task >> populate_staging_task 
+get_metadata_task >> create_tables_task
+covid_data_task >> create_tables_task
+
+create_tables_task >> create_emr_task 
+create_emr_task >> add_emr_steps_task
+add_emr_steps_task >> watch_steps_task
+watch_steps_task >> terminate_cluster_task
+
+terminate_cluster_task >> populate_staging_task 
 populate_staging_task >> populate_dimensions_task
 populate_dimensions_task >> populate_facts_task
 
-"""

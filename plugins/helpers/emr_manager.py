@@ -1,12 +1,16 @@
+import time
 
 class EmrHandler : 
 
-	instance_type = "m4.xlarge"
+	s3_bucket='udacity-awss'
+
+	instance_type = "m5.xlarge"
 	worker_nodes = 2
 	key_name = "emr_udacity"
 
+
 	JOB_FLOW_OVERRIDES = {
-	    "Name": "flights_covid_job",
+	    "Name": "flights_covid_job_" + time.strftime('%Y%m%d%H%M%S',time.gmtime()) ,
 	    "ReleaseLabel": "emr-6.2.0",
 	    "Applications": [ 
 	    	{"Name": "Spark"} 
@@ -46,11 +50,11 @@ class EmrHandler :
             'HadoopJarStep': {
                 'Jar': 's3://us-west-2.elasticmapreduce/libs/script-runner/script-runner.jar',
                 'Args': [
-                    's3://udacity-awss/mount_s3fs.sh',
+                    's3://'+ s3_bucket +'/mount_s3fs.sh',
                 ]
             }
         },
-        {
+       {
             'Name': 'Run Spark for downloaded data',
             'ActionOnFailure': 'CANCEL_AND_WAIT',
             'HadoopJarStep': {
@@ -61,7 +65,7 @@ class EmrHandler :
                      'cluster',
                      '--master',
                      'yarn',
-                     'etl/spark_etl.py'
+                     's3a://' + s3_bucket +  '/etl/spark_etl.py'
                 ]
             }
         }
@@ -88,16 +92,19 @@ class EmrHandler :
 
 		sudo chmod 600 s3fspw1
 
-		mkdir s3mount
+		mkdir -p s3mount
 
-		s3fs udacity-awss /home/hadoop/s3fs-fuse/s3mount -o passwd_file=/home/hadoop/s3fs-fuse/s3fspw1	
+		s3fs """ + s3_bucket + """ /home/hadoop/s3fs-fuse/s3mount -o passwd_file=/home/hadoop/s3fs-fuse/s3fspw1	
 
 		cd /home/hadoop/s3fs-fuse/s3mount
 
-		mkdir flights_raw/
+		mkdir -p flights_raw/
 
 		wget -i capstone_raw/flights_meta -P flights_raw/
 
-		#mkdir tweets_raw/
+		#mkdir -p tweets_raw/
 		#wget -i tweets -P flights_raw/
 	"""
+
+
+#'spark-submit --deploy-mode cluster --master yarn s3a://udacity-awss/etl/spark_etl.py'

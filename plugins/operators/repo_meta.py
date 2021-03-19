@@ -4,7 +4,6 @@ from airflow.utils.decorators import apply_defaults
 from helpers import S3Handler, EmrHandler
 from airflow.hooks.S3_hook import S3Hook
 
-import time
 import zenodo_get
 
 class MetadataGetter(BaseOperator):
