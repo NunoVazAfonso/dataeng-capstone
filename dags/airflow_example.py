@@ -8,6 +8,7 @@ from airflow.operators.postgres_operator import PostgresOperator
 from operators.data_downloader import RawDataHandler
 from operators.redshift_operator import S3ToRedshiftOperator
 from operators.repo_meta import MetadataGetter
+from operators.data_quality import DataQualityOperator
 
 from airflow.contrib.operators.emr_create_job_flow_operator import EmrCreateJobFlowOperator
 from airflow.contrib.operators.emr_add_steps_operator import EmrAddStepsOperator
@@ -111,12 +112,19 @@ populate_staging_task = S3ToRedshiftOperator(
            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
-           {"name": "tweets_staging", "s3_key" :"tweets.parquet"} ,
-           {"name": "flights_staging", "s3_key" :"flights.parquet"} ,
-           {"name": "airports_staging", "s3_key" :"airports.parquet"} ,
+           {"name": "tweets_staging", "s3_key" :"output/tweets.parquet"} ,
+           {"name": "flights_staging", "s3_key" :"output/flights.parquet"} ,
+           {"name": "airports_staging", "s3_key" :"output/airports.parquet"} ,
        ],
        s3_bucket="udacity-awss"
    )
+
+check_staging_task = DataQualityOperator(
+    task_id = 'check_staging_count',
+    dag=dag,
+    redshift_conn_id = "redshift",
+    tables = [ 'covid_staging', 'flights_staging', 'vaccination_staging' ]
+)
 
 populate_dimensions_task = PostgresOperator(
         task_id="populate_dimensions",
@@ -132,6 +140,13 @@ populate_facts_task = PostgresOperator(
         sql=SqlQueries.populate_facts_sttmts 
     )
 
+check_facts_task = DataQualityOperator(
+    task_id = 'check_facts_count',
+    dag=dag,
+    redshift_conn_id = "redshift",
+    tables = [ 'f_airportarrivals', 'f_countrycovid', 'f_airlineflights' ]
+)
+
 get_metadata_task >> create_tables_task
 covid_data_task >> create_tables_task
 
@@ -141,6 +156,9 @@ add_emr_steps_task >> watch_steps_task
 watch_steps_task >> terminate_cluster_task
 
 terminate_cluster_task >> populate_staging_task 
-populate_staging_task >> populate_dimensions_task
+populate_staging_task >> check_staging_task
+
+check_staging_task >> populate_dimensions_task
 populate_dimensions_task >> populate_facts_task
+populate_facts_task >> check_facts_task
 

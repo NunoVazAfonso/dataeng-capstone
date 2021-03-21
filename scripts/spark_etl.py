@@ -54,18 +54,18 @@ def main():
 
     
     # get airports data - to enrich existing data
-    spark.sparkContext.addFile("https://ourairports.com/data/airports.csv")
+    #spark.sparkContext.addFile("https://ourairports.com/data/airports.csv")
 
-    airports_df = spark.read.csv("file://" +SparkFiles.get("airports.csv"), header=True, inferSchema= True)
+    #airports_df = spark.read.csv("file://" +SparkFiles.get("airports.csv"), header=True, inferSchema= True)
 
-    airports_staging = airports_df.selectExpr("id", "ident as code", "type", "name", "iso_country", "municipality")
+    #airports_staging = airports_df.selectExpr("id", "ident as code", "type", "name", "iso_country", "municipality")
     
 
     print("Spark ETL: Writing Files")
 
     # write parquet files to local (S3 mount in case of EMR)
     flights_staging.write.parquet("s3a://udacity-awss/output/flights.parquet", mode="overwrite")                
-    airports_staging.write.parquet("s3a://udacity-awss/output/airports.parquet", mode="overwrite")
+    #airports_staging.write.parquet("s3a://udacity-awss/output/airports.parquet", mode="overwrite")
 
     spark.stop()
 

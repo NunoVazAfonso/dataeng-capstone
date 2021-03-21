@@ -11,7 +11,8 @@ class EtlPlugin(AirflowPlugin):
     operators = [
         operators.MetadataGetter,
         operators.RawDataHandler,
-        operators.S3ToRedshiftOperator
+        operators.S3ToRedshiftOperator,
+        operators.DataQualityOperator
     ]
     helpers = [
         helpers.SqlQueries, 
