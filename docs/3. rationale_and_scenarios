@@ -1,0 +1,22 @@
+### Tools Rationale  
+
+
+### Process periodicity   
+
+
+### Other scenarios: Answer to udacity scenarios  
+
+- What if the data increases by 100x ?  
+Data volume is a problem in itself at this stage. Months with between 2-4 million rows of data are not uncommon. While such an increase in data would be highly unlikely (if not impossible), if it did increase we would have to:  
+(1) try to process smaller batches of data at a time, by increasing the periodicity of processes ran, probably several times a day;
+(2) optimize our resources, identifying clearly the needs in terms of processing resources and separating high cardinality tables from low to medium cardinality  
+(3) we would have to increase the processing capacity within our pipeline. 100x increase is highly significant, so we would have to scale accordingly our operation and processing power  
+(4) re-define our data model and our facts granularity (do we really need to store each flight information?)  
+ 
+- What if the pipelines were ran daily at 7am ?  
+That wouldn't pose a problem for most of our process, but we would benefit for business information, in order to optimize our pipeline. Only certain sources are updated with such periodicity, so running the whole process each day wouldn't benefit us in any way, while consuming a lot of resources. We should optimize for daily deltas and process only tables and rows that are subject to daily change.  
+Data analysis of this kind would also benefit very little from such high periodicity.  
+
+- What if the database was needed by 100+ people at the same time ?  
+We would need to migrate this data from an analytical database to an operational one, with high availability. The best candidates for this, as we know, are NoSQL databases, such as Cassandra, that can be consulted by many users at the same time, while retaining great performance and reliability levels.  
+Columnar databases such as Redshift are not suitable for this use case, as they are intended for analytic purposes, and relational DBs such as MySQL would probably struggle, be sluggish or break with high number of concurrent requests.   
