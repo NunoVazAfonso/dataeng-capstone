@@ -1,6 +1,19 @@
 import time
 
 class EmrHandler : 
+	"""
+	Class to instantiate EmrHandler object.
+	Configurations for instantiating an EMR Job flow and
+	for adding Steps for Spark ETL process 
+
+	Attributes:
+		s3_bucket - (str) - your working s3 bucket name
+		instance_type - (str) - type of EMR master and worker nodes
+		worker_nodes - (int) - nr of worker nodes
+		JOB_FLOW_OVERRIDES - (str) - configurations for EMR cluster
+		SPARK_STEPS - (str) - steps to add for EMR cluster ETL process
+		shell_script - (str) - shell script to upload to S3 to automate zenodo files download 
+	"""
 
 	s3_bucket='udacity-awss'
 
@@ -100,10 +113,10 @@ class EmrHandler :
 
 		mkdir -p flights_raw/
 
-		wget -i capstone_raw/flights_meta -P flights_raw/
+		wget -i capstone_raw/flights_meta -nc -P flights_raw/ 
 
 		#mkdir -p tweets_raw/
-		#wget -i tweets -P flights_raw/
+		#wget -i tweets -nc -P flights_raw/
 	"""
 
 

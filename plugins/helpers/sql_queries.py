@@ -1,7 +1,9 @@
-class SqlQueries : 
-
+class SqlQueries :
+	"""
+	Helper class to manage SQL statements to execute during ETL.
+	Includes CREATE, INSERT statements for staging, dimension and fact tables.
+	"""
 	# CREATE stmts
-
 	# Staging tables 
 	
 	flights_staging_create = """ CREATE TABLE IF NOT EXISTS flights_staging (

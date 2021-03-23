@@ -32,6 +32,7 @@ raw_tweets_data_path = input_path + config.get('PATH', 'TWEETS_RAW_FOLDER')
 flights_repo=config.get('ZENODO', 'FLIGHTS_REPO')
 tweets_repo=config.get('ZENODO', 'TWEETS_REPO')
 
+
 default_args = {
     'owner': 'nunovazafonso',
     'start_date': dt.datetime.now(),
@@ -112,9 +113,9 @@ populate_staging_task = S3ToRedshiftOperator(
            {"name": "vaccination_staging", "s3_key" :"capstone_raw/vaccination_data.csv", } ,
            {"name": "covid_staging", "s3_key" :"capstone_raw/covid_data.csv"} ,
            {"name": "countries_staging", "s3_key" :"capstone_raw/countries_data.csv"} ,
-           {"name": "tweets_staging", "s3_key" :"output/tweets.parquet"} ,
+           {"name": "airports_staging", "s3_key" :"capstone_raw/airports_data.csv"} ,
            {"name": "flights_staging", "s3_key" :"output/flights.parquet"} ,
-           {"name": "airports_staging", "s3_key" :"output/airports.parquet"} ,
+           #{"name": "tweets_staging", "s3_key" :"output/tweets.parquet"} ,
        ],
        s3_bucket="udacity-awss"
    )
@@ -161,4 +162,3 @@ populate_staging_task >> check_staging_task
 check_staging_task >> populate_dimensions_task
 populate_dimensions_task >> populate_facts_task
 populate_facts_task >> check_facts_task
-

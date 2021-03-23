@@ -25,12 +25,23 @@ class RawDataHandler(BaseOperator):
 		self.s3_bucket = s3_bucket
 		self.aws_credentials_id = aws_credentials_id
 
+
 	def execute(self, context):
 		self.log.info('Raw Data Downloader: Started')
+
+		print('prev date'+context['prev_ds'])
+		print(context['execution_date'])
+		print('next date'+context['next_ds'])
 
 		# set origin URLs
 		vaccination_data_url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.json'
 		covid_data_url = 'https://covid19.who.int/WHO-COVID-19-global-data.csv'
+		airports_url = 'https://ourairports.com/airports.csv'
+
+		# daily data on COVID cases and deaths
+		
+		
+		
 
 		# get URL data 
 		daily_vaccinations = pd.json_normalize(
@@ -40,11 +51,16 @@ class RawDataHandler(BaseOperator):
 
 		cases_df = pd.read_csv(covid_data_url)
 
+		airports_df = pd.read_csv(airports_url)
+		airports_df = airports_df[["id", "ident", "type", "name", "iso_country", "municipality" ]]
+		airports_df.columns = ["id", "code", "type", "name", "iso_country", "municipality" ]
+
 		# save raw data files
 		destination_path = self.destination_folder 
 
 		cases_df.to_csv( destination_path + "/covid_data.csv", sep = ',' , index = False)
 		daily_vaccinations.to_csv( destination_path + "/vaccination_data.csv", sep = ',' , index = False)
+		airports_df.to_csv( destination_path + "/airports_data.csv", sep = ',' , index = False)
 
 		# enrich country info
 		country_objects = pycountry.countries
@@ -55,7 +71,7 @@ class RawDataHandler(BaseOperator):
 
 		countries_df = pd.DataFrame( countries )
 
-		countries_df.to_csv( destination_path + "/countries_data.csv", sep = ','  , index = False)
+		countries_df.to_csv( destination_path + "/countries_data.csv", sep = ',', index = False)
 
 		self.log.info('Raw Data Downloader: Complete')
 
@@ -63,7 +79,7 @@ class RawDataHandler(BaseOperator):
 		self.log.info('Upload to s3: Started')		
 
 
-		files_to_upload = ['covid_data.csv', 'vaccination_data.csv' ,'countries_data.csv']
+		files_to_upload = ['covid_data.csv', 'vaccination_data.csv' ,'countries_data.csv', 'airports_data.csv']
 
 		for file in files_to_upload : 
 			S3Handler.upload_file( 

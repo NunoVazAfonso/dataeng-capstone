@@ -29,6 +29,10 @@ class MetadataGetter(BaseOperator):
 
 		self.log.info('Metadata to S3: Started')
 
+		print('prev date: '+context['prev_ds'])
+		print(context['execution_date'])
+		print('next date: '+context['next_ds'])
+
 		for repo in self.repos : 
 			# get meta files  
 			zenodo_get.zenodo_get([

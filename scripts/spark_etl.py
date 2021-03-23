@@ -1,4 +1,4 @@
-import configparser
+#import configparser
 import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf, col, concat_ws
@@ -7,9 +7,11 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 # from pyspark import SparkFiles
 
 # set configs from file
-config = configparser.ConfigParser()
-config.read('global.cfg')
+#config = configparser.ConfigParser()
+#config.read('etl/global.cfg')
+#s3_bucket=config.get('AWS', 'S3_BUCKET')
 
+s3_bucket="udacity-awss"
 
 # init spark process
 def create_spark_session():
@@ -39,10 +41,10 @@ def main():
 
 
     flights_df = spark.read.options( 
-                recursiveFileLookup=True , 
+                ##recursiveFileLookup=True , 
                 inferSchema=True, 
                 header=True)\
-            .csv( "s3a://udacity-awss/flights_raw" )
+            .csv( "s3a://{}/flights_raw/*.csv.gz".format(s3_bucket) )
 
     flights_staging = flights_df.selectExpr( "callsign", "icao24 as trasponder_id", 
                           "registration as aircraft_id", "typecode as aircraft_type",
@@ -54,7 +56,7 @@ def main():
 
     
     # get airports data - to enrich existing data
-    #spark.sparkContext.addFile("https://ourairports.com/data/airports.csv")
+    #spark.sparkContext.addFile("https://ourairports.com/airports.csv")
 
     #airports_df = spark.read.csv("file://" +SparkFiles.get("airports.csv"), header=True, inferSchema= True)
 
@@ -64,8 +66,8 @@ def main():
     print("Spark ETL: Writing Files")
 
     # write parquet files to local (S3 mount in case of EMR)
-    flights_staging.write.parquet("s3a://udacity-awss/output/flights.parquet", mode="overwrite")                
-    #airports_staging.write.parquet("s3a://udacity-awss/output/airports.parquet", mode="overwrite")
+    flights_staging.write.parquet("s3a://{}/output/flights.parquet".format(s3_bucket), mode="overwrite")                
+    #airports_staging.write.parquet("s3a://"+s3_bucket+"/output/airports.parquet", mode="overwrite")
 
     spark.stop()
 
