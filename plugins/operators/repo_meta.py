@@ -7,6 +7,20 @@ from airflow.hooks.S3_hook import S3Hook
 import zenodo_get
 
 class MetadataGetter(BaseOperator):
+	"""
+	Processes and generates files with metainformation necessary to process Extract process.
+	Fetches Zenodo metadata, necessary to download from Zenodo repository via wget. 
+	Generates shell script to execute in ETL machine. 
+	Loads Spark ETL files and necessary configurations to S3, to be used in ETL.
+	Stores files in S3.
+
+	Params: 
+		destination_folder (str) - local path to store generated metadata and process files before uploading to S3
+		s3_bucket (str) - the name of s3 bucket to store ETL files
+		aws_credentials_id (str) - the name of the AWS connection variable
+		project_root (str) - the local root of the project
+		repos (Array<dict>) - the Zenodo repo IDs to process 
+	"""
 
 	@apply_defaults
 	def __init__(self
@@ -29,9 +43,11 @@ class MetadataGetter(BaseOperator):
 
 		self.log.info('Metadata to S3: Started')
 
+		"""
 		print('prev date: '+context['prev_ds'])
 		print(context['execution_date'])
 		print('next date: '+context['next_ds'])
+		"""
 
 		for repo in self.repos : 
 			# get meta files  

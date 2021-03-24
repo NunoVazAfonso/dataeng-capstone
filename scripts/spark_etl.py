@@ -16,7 +16,7 @@ s3_bucket="udacity-awss"
 # init spark process
 def create_spark_session():
     """
-    - Create or retrieve existing spark session
+    Create or retrieve existing spark session
     
     Returns: 
         spark -- SparkSession object 
@@ -29,6 +29,11 @@ def create_spark_session():
     return spark
 
 def main():
+    """
+    Main function to read from raw data files using Spark
+    Transform the data, selecting the appropriate columns
+    Save resulting parquet files to S3 
+    """
 
     print("Spark ETL: Started")
 

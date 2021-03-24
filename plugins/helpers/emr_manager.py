@@ -118,6 +118,3 @@ class EmrHandler :
 		#mkdir -p tweets_raw/
 		#wget -i tweets -nc -P flights_raw/
 	"""
-
-
-#'spark-submit --deploy-mode cluster --master yarn s3a://udacity-awss/etl/spark_etl.py'

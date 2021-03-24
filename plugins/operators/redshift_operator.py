@@ -5,6 +5,24 @@ from airflow.utils.decorators import apply_defaults
 
 
 class S3ToRedshiftOperator(BaseOperator):
+    """
+    Handles load of data to Redshift destination DB 
+    based on raw files stored in S3. 
+
+    Attributes : 
+        copy_sql (str) - base copy statement to load batch data from file to table
+        parquet_format (str) - specifies parquet format to append to copy sttmt if raw input is parquet file 
+        csv_format (str) - specifies csv format and meta to append to copy sttmt if raw input is csv file
+    
+    Params:  
+        redshift_conn_id (str) - the Redshift configured connection name in airflow
+        aws_credentials_id (str) - the AWS configured connection name in airflow
+        tables (Array<dict>) - the destination tables to process the raw data files to
+        s3_bucket (str) - the bucket name of the S3 raw data files  
+        delimiter (str) - the csv delimiter (default comma)  
+        ignore_headers (int) - 1 or 0 - ignore csv header first row (default 1)
+
+    """
 
     copy_sql = """
         COPY {}
@@ -26,7 +44,6 @@ class S3ToRedshiftOperator(BaseOperator):
                  aws_credentials_id="",
                  tables=[],
                  s3_bucket="",
-                    y="",
                  delimiter=",",
                  ignore_headers=1,
                  *args, **kwargs):

@@ -3,6 +3,17 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 class DataQualityOperator(BaseOperator):
+    """
+    Data quality checker for Redshift tables. 
+    Check for non-empty tables
+
+    Params: 
+         redshift_conn_id (str) - the aiflow connection variable name
+         tables (Array<str>) - the tables to check for count
+
+    Raises: 
+        ValueError - if count is 0 or null
+    """
 
     @apply_defaults
     def __init__(self,

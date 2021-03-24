@@ -11,6 +11,15 @@ import boto3
 import time
 
 class RawDataHandler(BaseOperator):
+	"""
+	Class downloader of raw data sources from API 
+	and low volume sources to be handled locally
+
+	Params: 
+		destination_folder (str) - the local path to output raw files to  
+		s3_bucket (str) - the S3 destination bucket name
+		aws_credentials_id (str) - the airflow credentials variable name for s3 
+	"""
 
 	@apply_defaults
 	def __init__(self
@@ -29,19 +38,16 @@ class RawDataHandler(BaseOperator):
 	def execute(self, context):
 		self.log.info('Raw Data Downloader: Started')
 
+		"""
 		print('prev date'+context['prev_ds'])
 		print(context['execution_date'])
 		print('next date'+context['next_ds'])
+		"""
 
 		# set origin URLs
 		vaccination_data_url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.json'
 		covid_data_url = 'https://covid19.who.int/WHO-COVID-19-global-data.csv'
 		airports_url = 'https://ourairports.com/airports.csv'
-
-		# daily data on COVID cases and deaths
-		
-		
-		
 
 		# get URL data 
 		daily_vaccinations = pd.json_normalize(
@@ -55,7 +61,7 @@ class RawDataHandler(BaseOperator):
 		airports_df = airports_df[["id", "ident", "type", "name", "iso_country", "municipality" ]]
 		airports_df.columns = ["id", "code", "type", "name", "iso_country", "municipality" ]
 
-		# save raw data files
+		# save raw data files locally
 		destination_path = self.destination_folder 
 
 		cases_df.to_csv( destination_path + "/covid_data.csv", sep = ',' , index = False)
@@ -73,20 +79,20 @@ class RawDataHandler(BaseOperator):
 
 		countries_df.to_csv( destination_path + "/countries_data.csv", sep = ',', index = False)
 
-		self.log.info('Raw Data Downloader: Complete')
 
+		self.log.info('Raw Data Downloader: Complete')
 
 		self.log.info('Upload to s3: Started')		
 
-
+		# upload files to s3 bucket
 		files_to_upload = ['covid_data.csv', 'vaccination_data.csv' ,'countries_data.csv', 'airports_data.csv']
 
 		for file in files_to_upload : 
 			S3Handler.upload_file( 
 				self.aws_credentials_id,
 				self.s3_bucket ,
-				destination_path + "/" + file , 
-				"capstone_raw/" + file
+				destination_path + "/" + file , # local path
+				"capstone_raw/" + file # s3 destination
 			)
 
 		self.log.info('Upload to s3: Complete')
