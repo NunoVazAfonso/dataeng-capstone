@@ -34,3 +34,9 @@ Please consult `docs/0. presentation_an_motivation.md` for more information on t
 Additional sources can be included, leveraging the existing pipeline. One suggestion, already presented, is the inclusion of a social thermometer through Tweets. One interesting exercice could potentially be to employ sentiment analysis, geographical distribution and evolution comparison with COVID prevalence.  
 Including macroeconomic indicators, such as GDP, could also be interesting to evaluate the effect of COVID on each economy. This is a more traditional exercise, that I did not consider.  
 
+## Examples  
+
+In this work, some example charts generated with the model data are presented in `docs/5. examples.md` .  
+Please check these out for some simple example charts, generated using Google Data Studio.  
+
+![World COVID Flights](docs/charts/world_covid_flights.png "World COVID Flights")  
