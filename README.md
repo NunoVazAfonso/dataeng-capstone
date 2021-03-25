@@ -30,6 +30,17 @@ Tables marked as TODO were initially considered, but out of scope for this deliv
 
 Please consult `docs/0. presentation_an_motivation.md` for more information on the project's motivation, sources and thought use cases.  
 
+## How to run  
+
+Please add this project to your Airflow and trigger the DAG run.   
+The process is currently loading the full data model.  
+
+## Improvements Needed  
+Include full and partial run options, due to the high volume of data.  
+Add backill and partitioning processing for monthly runs (task for next monthly run).  
+Add SCD type 6.  
+Add ETL process meta information (process ran on, created on, updated on, etc).
+
 ## Future work  
 Additional sources can be included, leveraging the existing pipeline. One suggestion, already presented, is the inclusion of a social thermometer through Tweets. One interesting exercice could potentially be to employ sentiment analysis, geographical distribution and evolution comparison with COVID prevalence.  
 Including macroeconomic indicators, such as GDP, could also be interesting to evaluate the effect of COVID on each economy. This is a more traditional exercise, that I did not consider.  
