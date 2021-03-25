@@ -11,14 +11,15 @@ class EmrHandler :
 		instance_type - (str) - type of EMR master and worker nodes
 		worker_nodes - (int) - nr of worker nodes
 		JOB_FLOW_OVERRIDES - (str) - configurations for EMR cluster
-		SPARK_STEPS - (str) - steps to add for EMR cluster ETL process
+		SPARK_STEP_MOUNT - (str) - steps to add mount on EMR cluster
+		SPARK_STEP_SPARK - (str) - steps to add Spark ETL process to EMR cluster 
 		shell_script - (str) - shell script to upload to S3 to automate zenodo files download 
 	"""
 
 	s3_bucket='udacity-awss'
 
 	instance_type = "m5.xlarge"
-	worker_nodes = 2
+	worker_nodes = 3
 	key_name = "emr_udacity"
 
 
@@ -56,7 +57,7 @@ class EmrHandler :
 
 	##################################
 
-	SPARK_STEPS = [ # Note the params values are supplied to the operator
+	SPARK_STEP_MOUNT = [ # Note the params values are supplied to the operator
         {
             'Name': 'Mount s3fs and download files',
             'ActionOnFailure': 'CANCEL_AND_WAIT',
@@ -66,7 +67,10 @@ class EmrHandler :
                     's3://'+ s3_bucket +'/mount_s3fs.sh',
                 ]
             }
-        },
+        }
+	]
+	
+	SPARK_STEP_SPARK = [
        {
             'Name': 'Run Spark for downloaded data',
             'ActionOnFailure': 'CANCEL_AND_WAIT',
@@ -76,13 +80,13 @@ class EmrHandler :
                     'spark-submit',
                      '--deploy-mode',
                      'cluster',
-                     '--master',
-                     'yarn',
+                     #'--master',
+                     #'yarn',
                      's3a://' + s3_bucket +  '/etl/spark_etl.py'
                 ]
             }
         }
-	]
+    ]
 
 
 	shell_script = """

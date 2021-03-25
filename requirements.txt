@@ -1,0 +1,8 @@
+pandas
+pycountry
+boto3
+zenodo_get
+airflow
+requests
+configparser
+pyspark

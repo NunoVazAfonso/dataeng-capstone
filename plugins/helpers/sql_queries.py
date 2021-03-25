@@ -68,7 +68,6 @@ class SqlQueries :
 	"""
 
 	# DIMENSION tables
-
 	date_create = """CREATE OR REPLACE VIEW v_dim_date as
 		(SELECT
 		  	TO_CHAR(datum, 'YYYYMMDD')::INTEGER								AS date_id , 
@@ -177,21 +176,25 @@ class SqlQueries :
 	countries_insert = """
 		INSERT INTO dim_country (name, iso2, iso3)
 			SELECT DISTINCT c.name as name, c.alpha_2 as iso2, c.alpha_3  as iso3
-				FROM countries_staging c ;
+				FROM countries_staging c 
+				WHERE c.alpha_2 is not null 
+					AND c.alpha_2 NOT IN ( SELECT DISTINCT alpha_2 from dim_country );
 	"""
 
 	airports_insert = """ 
 		INSERT INTO dim_airport ( ref_id, code , type, name, municipality, country_iso2 )
 			SELECT DISTINCT id as ref_id , code, type, name, municipality , iso_country as country_iso2 
 				FROM airports_staging 
-				WHERE code IS NOT NULL ;
+				WHERE code IS NOT NULL 
+					AND code NOT IN (SELECT code FROM dim_airport) ;
 	"""
 
 	airlines_insert = """ 
 		INSERT INTO dim_airline ( code, name )
 			SELECT DISTINCT REGEXP_SUBSTR ( callsign, '[A-Za-z]{3}') as airline_code, 'TODO: Enrich' as airline_name
 				from flights_staging 
-				WHERE callsign IS NOT NULL ;
+				WHERE callsign IS NOT NULL 
+					AND airline_code not in (SELECT code FROM dim_airline)  ;
 	;"""
 
 
@@ -202,35 +205,40 @@ class SqlQueries :
 
 	airport_arrivals_insert = """
 		INSERT INTO f_airportarrivals ( fk_date, country_iso2, airport_code, nr_arrivals )
-			SELECT 
-				replace(left(f.arrival_at, 10), '-', '')::INTEGER fk_date,
-				a.iso_country as country_iso2,
-				a.code as airport_code,
-				count(distinct f.trasponder_id) as nr_arrivals 
-			FROM flights_staging as f 
-			LEFT JOIN airports_staging as a 
-				on a.code = f.arrival_airport_id
-			WHERE 
-				country_iso2 is not null
-			GROUP BY 
-				fk_date , country_iso2, airport_code ;
+			(
+				SELECT 
+					DISTINCT 
+					replace(left(f.arrival_at, 10), '-', '')::INTEGER fk_date,
+					a.iso_country as country_iso2,
+					a.code as airport_code,
+					count(distinct f.trasponder_id) as nr_arrivals 
+				FROM flights_staging as f 
+				LEFT JOIN airports_staging as a 
+					on a.code = f.arrival_airport_id
+				WHERE 
+					country_iso2 is not null and airport_code is not null and fk_date is not null
+				GROUP BY 
+					fk_date , country_iso2, airport_code 
+			);
 	"""
 
 	airline_flights_insert = """  
 		INSERT INTO f_airlineflights ( fk_date, airline_code , arrival_code, departure_code, nr_planes )
-			SELECT 
-				replace(left(f.arrival_at, 10), '-', '')::INTEGER fk_date,
-				REGEXP_SUBSTR ( f.callsign, '[A-Za-z]{3}') as airline_code,
-				a.code as arrival_code,
-				d.code as departure_code,
-				count(distinct f.trasponder_id) as nr_planes 
-			FROM flights_staging as f 
-			LEFT JOIN airports_staging as a 
-				ON a.code = f.arrival_airport_id
-			LEFT JOIN airports_staging as d 
-				ON d.code = f.depart_airport_id	
-			GROUP BY 
-				fk_date , arrival_code, airline_code, departure_code ;
+			( 
+				SELECT 
+					DISTINCT 
+                    replace(left(f.arrival_at, 10), '-', '')::INTEGER fk_date,
+					REGEXP_SUBSTR ( f.callsign, '[A-Za-z]{3}') as airline_code,
+					arrival_airport_id as arrival_code,
+					depart_airport_id as departure_code,
+					count(distinct f.trasponder_id) as nr_planes 
+				FROM flights_staging as f 
+				WHERE 
+					fk_date is not null and airline_code is not null
+				GROUP BY 
+					fk_date , arrival_code, airline_code, departure_code
+			)
+			;
 	"""
 
 	covid_per_country_insert = """
@@ -270,10 +278,11 @@ class SqlQueries :
 					FROM covid c
 					LEFT JOIN vaccination v
 						ON v.date = c.date_reported and c.alpha_2 = v.alpha_2
+					WHERE
+ 						fk_date is not null and country_iso2 is not null	
 					ORDER BY fk_date DESC 
 				)
 	"""
-
 
 	populate_facts_sttmts = [ airport_arrivals_insert , airline_flights_insert , covid_per_country_insert ]
 

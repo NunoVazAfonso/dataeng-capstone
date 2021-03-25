@@ -81,18 +81,34 @@ create_emr_task = EmrCreateJobFlowOperator(
     dag=dag
 )
 
-add_emr_steps_task = EmrAddStepsOperator(
-    task_id='add_emr_steps',
+add_emr_mount_task = EmrAddStepsOperator(
+    task_id='add_emr_mount',
     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
     aws_conn_id='aws_credentials',
-    steps=EmrHandler.SPARK_STEPS,
+    steps=EmrHandler.SPARK_STEP_MOUNT,
     dag=dag
 )
 
-watch_steps_task = EmrStepSensor(
-    task_id='watch_step',
+watch_mount_task = EmrStepSensor(
+    task_id='watch_mount',
     job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
-    step_id="{{ task_instance.xcom_pull(task_ids='add_emr_steps', key='return_value')[0] }}",
+    step_id="{{ task_instance.xcom_pull(task_ids='add_emr_mount', key='return_value')[0] }}",
+    aws_conn_id='aws_credentials',
+    dag=dag
+)
+
+add_emr_spark_task = EmrAddStepsOperator(
+    task_id='add_emr_spark',
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id='aws_credentials',
+    steps=EmrHandler.SPARK_STEP_SPARK,
+    dag=dag
+)
+
+watch_spark_task = EmrStepSensor(
+    task_id='watch_spark',
+    job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
+    step_id="{{ task_instance.xcom_pull(task_ids='add_emr_spark', key='return_value')[0] }}",
     aws_conn_id='aws_credentials',
     dag=dag
 )
@@ -152,9 +168,11 @@ get_metadata_task >> create_tables_task
 covid_data_task >> create_tables_task
 
 create_tables_task >> create_emr_task 
-create_emr_task >> add_emr_steps_task
-add_emr_steps_task >> watch_steps_task
-watch_steps_task >> terminate_cluster_task
+create_emr_task >> add_emr_mount_task
+add_emr_mount_task >> watch_mount_task
+watch_mount_task >> add_emr_spark_task
+add_emr_spark_task >> watch_spark_task
+watch_spark_task >> terminate_cluster_task
 
 terminate_cluster_task >> populate_staging_task 
 populate_staging_task >> check_staging_task

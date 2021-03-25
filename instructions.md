@@ -1,33 +1,12 @@
-Instructions  
-  
-  
-1. Install dependencies  
-	zenodo_get , pip install zenodo-get  
-	pyspark
-	boto3
-	pycountry
+1. Install requirements   
   
 2. Create variables in airflow
-	project_root: the root folder of the project
-	input_folder: folder where pre-staging data will be stored
-	aws_credentials: insert extras {"region_name": "<YOUR_REGION>"}
-	emr_connection = aws_credentials (no extras required)
+	aws_credentials: login and password as KEY and SECRET. Insert extras {"region_name": "<YOUR_REGION>"}
+	emr_connection: similar to aws_credentials (no extras required)
+	s3_credentials: similar to emr connection, AWS KEY and SECRET
+	redshift: configure connection to redshift
 
-3. Mount file system in EC2 instance. 
-	$ s3fs udacity-awss -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /home/udacity_mount
+3. Edit configurations file under "configs/global.cfg" 
 
-
-
-References :  
-https://kulasangar.medium.com/create-an-emr-cluster-and-submit-a-job-using-boto3-c34134ef68a0  	
-
-EMR Scripts: 
-https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-hadoop-script.html
-
-Mount s3: 
-https://cloudkul.com/blog/mounting-s3-bucket-linux-ec2-instance/
-
-Airports db:
-https://ourairports.com/data/
-https://ourairports.com/data/airports.csv
+4. Trigger Airflow run 
 

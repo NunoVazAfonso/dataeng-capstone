@@ -73,7 +73,7 @@ class S3ToRedshiftOperator(BaseOperator):
                 table_copy_sql = S3ToRedshiftOperator.copy_sql
 
             self.log.info("Clearing data from destination Redshift table")
-            redshift.run("DELETE FROM {}".format(table['name']))
+            redshift.run("TRUNCATE {}".format(table['name']))
 
             self.log.info("Copying data from S3 to Redshift")
             rendered_key = table['s3_key'].format(**context)
