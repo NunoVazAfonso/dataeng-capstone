@@ -150,6 +150,13 @@ populate_dimensions_task = PostgresOperator(
         sql=SqlQueries.populate_dims_sttmts 
     )
 
+check_dims_task = DataQualityOperator(
+    task_id = 'check_dims',
+    dag=dag,
+    redshift_conn_id = "redshift",
+    tables = [ 'dim_country', 'dim_airport', 'dim_airline' ]
+)
+
 populate_facts_task = PostgresOperator(
         task_id="populate_facts",
         dag=dag,
@@ -178,5 +185,6 @@ terminate_cluster_task >> populate_staging_task
 populate_staging_task >> check_staging_task
 
 check_staging_task >> populate_dimensions_task
-populate_dimensions_task >> populate_facts_task
+populate_dimensions_task >> check_dims_task
+check_dims_task >> populate_facts_task
 populate_facts_task >> check_facts_task

@@ -178,7 +178,7 @@ class SqlQueries :
 			SELECT DISTINCT c.name as name, c.alpha_2 as iso2, c.alpha_3  as iso3
 				FROM countries_staging c 
 				WHERE c.alpha_2 is not null 
-					AND c.alpha_2 NOT IN ( SELECT DISTINCT alpha_2 from dim_country );
+					AND c.alpha_2 NOT IN ( SELECT DISTINCT iso2 from dim_country );
 	"""
 
 	airports_insert = """ 

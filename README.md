@@ -34,6 +34,7 @@ Please consult `docs/0. presentation_an_motivation.md` for more information on t
 
 Please add this project to your Airflow and trigger the DAG run.   
 The process is currently loading the full data model.  
+In linux, run `sh start_airflow.sh` to init your airflow.  
 
 ## Improvements Needed  
 Include full and partial run options, due to the high volume of data.  
